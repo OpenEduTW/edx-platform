@@ -54,6 +54,9 @@ from student_account import views as student_account_views
 from track import views as track_views
 from util import views as util_views
 
+# guangyaw modify for nid
+from school_id_login import views as school_id_views
+
 if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
     django_autodiscover()
     admin.site.site_header = _('LMS Administration')
@@ -64,6 +67,12 @@ if settings.DEBUG or settings.FEATURES.get('ENABLE_DJANGO_ADMIN_SITE'):
 
 
 urlpatterns = [
+# guangyaw modify for nid
+    url(r'^nidlogin$', school_id_views.signin_nid, name='nsignin_nid'),
+    url(r'^nidreturn$', school_id_views.return_nid, name='nretrun_nid'),
+    url(r'^unlink_account$', school_id_views.unidlink, name='unidlink_account'),
+    url(r'^check_stu_school/$', school_id_views.check_stu_id_school, name='check_stu_school_id'),
+
     url(r'^$', branding_views.index, name='root'),   # Main marketing page, or redirect to courseware
 
     url(r'', include('student.urls')),

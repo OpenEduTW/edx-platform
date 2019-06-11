@@ -45,6 +45,7 @@ from webpack_loader.templatetags.webpack_loader import render_bundle
         enterpriseReadonlyAccountFields = ${ enterprise_readonly_account_fields | n, dump_js_escaped_json },
         edxSupportUrl = '${ edx_support_url | n, js_escaped_string }',
         extendedProfileFields = ${ extended_profile_fields | n, dump_js_escaped_json },
+        nid_bind_flag = ${ nid_binding_flag | n, dump_js_escaped_json},
         displayAccountDeletion = ${ enable_account_deletion | n, dump_js_escaped_json};
 
     AccountSettingsFactory(
@@ -65,6 +66,7 @@ from webpack_loader.templatetags.webpack_loader import render_bundle
         enterpriseReadonlyAccountFields,
         edxSupportUrl,
         extendedProfileFields,
+        nid_bind_flag,
         displayAccountDeletion
     );
 </%static:require_module>

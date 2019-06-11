@@ -648,8 +648,13 @@ DEFAULT_TEMPLATE_ENGINE['DIRS'] = _add_microsite_dirs_to_default_template_engine
 derived_collection_entry('DEFAULT_TEMPLATE_ENGINE', 'DIRS')
 
 ###############################################################################################
+# guangyaw modify for nid
 
-AUTHENTICATION_BACKENDS = ['openedx.core.djangoapps.oauth_dispatch.dot_overrides.validators.EdxRateLimitedAllowAllUsersModelBackend']
+AUTHENTICATION_BACKENDS = [
+    'openedx.core.djangoapps.oauth_dispatch.dot_overrides.validators.EdxRateLimitedAllowAllUsersModelBackend',
+    'django.contrib.auth.backends.ModelBackend'
+    ]
+
 STUDENT_FILEUPLOAD_MAX_SIZE = 4 * 1000 * 1000  # 4 MB
 MAX_FILEUPLOADS_PER_INPUT = 20
 

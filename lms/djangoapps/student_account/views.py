@@ -58,6 +58,8 @@ from third_party_auth.decorators import xframe_allow_whitelisted
 from util.bad_request_rate_limiter import BadRequestRateLimiter
 from util.date_utils import strftime_localized
 
+from school_id_login.models import Xsuser
+
 
 AUDIT_LOG = logging.getLogger("audit")
 log = logging.getLogger(__name__)
@@ -575,6 +577,12 @@ def account_settings_context(request):
 
     enterprise_customer = get_enterprise_customer_for_learner(site=request.site, user=request.user)
     update_account_settings_context_for_enterprise(context, enterprise_customer)
+#guangyaw modify for nid login
+    profile = Xsuser.objects.filter(user=request.user, ask_nid_link='already_bind')
+    if profile:
+        context['nid_binding_flag'] = True
+    else:
+        context['nid_binding_flag'] = False
 
     if third_party_auth.is_enabled():
         # If the account on the third party provider is already connected with another edX account,

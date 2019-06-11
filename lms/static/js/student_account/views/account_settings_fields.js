@@ -332,6 +332,7 @@
                             gettext('Link your {accountName} account'),
                             {accountName: this.options.title}
                         );
+
                     if (this.options.connected) {
                         linkTitle = gettext('Unlink This Account');
                         linkClass = 'social-field-linked';
@@ -371,7 +372,12 @@
                     this.showInProgressMessage();
 
                     if (this.options.connected) {
-                        this.disconnect();
+                        //guangyaw modify for nid
+                        if (this.options.title === '逢甲大學') {
+                            this.redirect_to(this.options.disconnectUrl);
+                        } else {
+                            this.disconnect();
+                        }
                     } else {
                         // Direct the user to the providers site to start the authentication process.
                         // See python-social-auth docs for more information.
