@@ -1,0 +1,22 @@
+<!--<%! from django.utils.translation import ugettext as _ %>-->
+<!--<%namespace name='static' file='/static_content.html'/>-->
+<!--<%inherit file="/main.html" />-->
+
+<%block name="pagetitle">${ error_title }</%block>
+
+
+<div class="error-pages">
+    <div class="error-pages-inner">
+        <h1>${_('Error')}</h1>
+    </div>
+    % if error_msg1 :
+    <div class="error-pages-message1" align="center">
+        <h2>${ error_msg1 }</h2>
+    </div>
+    % endif
+    % if error_msg2 :
+    <div class="error-pages-message2" align="center">
+        <h2>${ error_msg2 }</h2>
+    </div>
+    % endif
+</div>

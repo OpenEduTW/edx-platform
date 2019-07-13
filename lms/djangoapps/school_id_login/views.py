@@ -29,6 +29,7 @@ from school_id_login.models import Xschools
 from school_id_login.models import Xsuser
 from django.contrib import auth
 from django.http import HttpResponse
+from edxmako.shortcuts import render_to_response
 
 log = logging.getLogger("edx.student")
 AUDIT_LOG = logging.getLogger("audit")
@@ -77,97 +78,125 @@ def unidlink(request):
 @ensure_csrf_cookie
 def signin_nid(request):
     xclient_id = Xschools.objects.get(xschool_id='FCU').xschool_client
-    returnto = reverse('nretrun_nid')
-    return redirect('https://opendata.fcu.edu.tw/fcuOauth/Auth.aspx?client_id='+xclient_id+'&client_url=https://courses.openedu.tw'+returnto)
+    xclient_url = Xschools.objects.get(xschool_id='FCU').return_uri
+    return redirect(
+        'https://opendata.fcu.edu.tw/fcuOauth/Auth.aspx?client_id=' + xclient_id + '&client_url=' + xclient_url)
 
 
 @csrf_exempt
-@require_POST
 def return_nid(request):
-    if 'user_code' not in request.POST or 'status' not in request.POST:
-        raise AuthFailedError(_('There was an error receiving your login information. '))
+    if request.method == 'POST':
+        if int(request.POST['status']) == 200:
+            xclient_id = Xschools.objects.get(xschool_id='FCU').xschool_client
+            getinfourl = 'https://opendata.fcu.edu.tw/fcuapi/api/GetUserInfo'
+            sdata = {"client_id": xclient_id, "user_code": request.POST['user_code']}
+            r = requests.get(getinfourl, params=sdata)
+            if int(r.status_code) == 200:
+                resp = json.loads(r.text)
+                data = resp['UserInfo'][0]
+                fresp = {
+                    'id': data['id'].strip(),
+                    'name': data['name'],
+                    # 'type' : data['type']
+                }
+                if request.user.is_authenticated:
+                    profile, created = Xsuser.objects.get_or_create(user=request.user)
+                    if profile.ask_nid_link == 'already_bind':
+                        AUDIT_LOG.info(
+                            u"Link failed - The openedu account: {idname} is already linked with a ID  ".format(
+                                idname=request.user.username)
+                        )
+                        context = {
+                            'error_title': 'Error page !!',
+                            'error_msg1': "此中華開放教育平台帳號已與其他帳號綁定"
+                        }
 
-    if int(request.POST['status']) == 200:
-        # test
-        xclient_id = Xschools.objects.get(xschool_id='FCU').xschool_client
-        getinfourl = 'https://opendata.fcu.edu.tw/fcuapi/api/GetUserInfo'
-        sdata = {"client_id": xclient_id, "user_code": request.POST['user_code'] }
-        r = requests.get(getinfourl, params=sdata)
-        if int(r.status_code) == 200:
-            resp = json.loads(r.text)
-            data = resp['UserInfo'][0]
-            fresp = {
-                'id' : data['id'].strip(),
-                'name' : data['name'],
-                # 'type' : data['type']
-            }
-            if request.user.is_authenticated:
-                profile, created = Xsuser.objects.get_or_create(user=request.user)
-                if profile.ask_nid_link == 'already_bind':
-                    AUDIT_LOG.info(
-                        u"Link failed - The openedu account: {idname} is already linked with a ID  ".format(
-                            idname=request.user.username)
-                    )
-                    return JsonResponse({
-                        'status': 'False',
-                        'message': "The openedu account is already linked with a FCU_NID "
-                    })
-                else:
-                    profile.ask_nid_link = 'already_bind'
-                    profile.nid_linked = "FCU_" + fresp['id']
-                    profile.save()
-                    redirect_url = reverse('account_settings')
-                return redirect(redirect_url)
-            else:
-                try:
-                    puser = Xsuser.objects.get(nid_linked="FCU_" + fresp['id'])
-                except Xsuser.DoesNotExist:
-                    AUDIT_LOG.info(
-                        u"Login failed - No user bind to the ID {idname} ".format(idname=fresp['id'])
-                    )
-                    return JsonResponse({
-                        'status': 'False',
-                        'message': "Login FCU_NID succeed but this account isn't linked with an openedu account yet. "
-                                   "If you don't have a openedu account , please register one."
-                    })
-                else:
-                    if puser.ask_nid_link == 'already_bind':
-                        email_user = puser.user
-                        _check_shib_redirect(email_user)
-                        _check_excessive_login_attempts(email_user)
-                        _check_forced_password_reset(email_user)
-
-                        possibly_authenticated_user = email_user
-
-                        if possibly_authenticated_user is None or not possibly_authenticated_user.is_active:
-                            _handle_failed_authentication(email_user)
-
-                        _handle_nid_authentication_and_login(possibly_authenticated_user, request)
-
-                        # redirect_url = None  # The AJAX method calling should know the default destination upon success
-                        redirect_url = reverse('dashboard')
-
-                        response = JsonResponse({
-                            'success': True,
-                            'redirect_url': redirect_url,
-                        })
-
-                        # Ensure that the external marketing site can
-                        # detect that the user is logged in.
-                        set_logged_in_cookies(request, response, possibly_authenticated_user)
-                        return redirect(redirect_url)
+                        response = render_to_response('school_id_login/xerror_auth.html', context)
+                        return response
                     else:
-                        raise AuthFailedError(_('no link account for the FCU_NID '))
-        else:
-            raise AuthFailedError(_('There was an error receiving your Nid information. '))
-    else:
-        raise AuthFailedError(_('Nid login fail '))
+                        profile.ask_nid_link = 'already_bind'
+                        profile.nid_linked = "FCU_" + fresp['id']
+                        profile.save()
+                        redirect_url = reverse('account_settings')
+                    return redirect(redirect_url)
+                else:
+                    try:
+                        puser = Xsuser.objects.get(nid_linked="FCU_" + fresp['id'])
+                    except Xsuser.DoesNotExist:
+                        AUDIT_LOG.info(
+                            u"Login failed - No user bind to the ID {idname} ".format(idname=fresp['id'])
+                        )
+                        context = {
+                            'error_title': 'Error page !!',
+                            'error_msg1': "成功登入NID,但此NID帳號未與中華開放教育平台帳號綁定",
+                            'error_msg2': "請先登入中華開放教育平台或註冊新帳號進行校園帳號綁定"
+                        }
 
+                        response = render_to_response('school_id_login/xerror_auth.html', context)
+                        return response
+                    else:
+                        if puser.ask_nid_link == 'already_bind':
+                            email_user = puser.user
+                            _check_shib_redirect(email_user)
+                            _check_excessive_login_attempts(email_user)
+                            _check_forced_password_reset(email_user)
+
+                            possibly_authenticated_user = email_user
+
+                            if possibly_authenticated_user is None or not possibly_authenticated_user.is_active:
+                                _handle_failed_authentication(email_user)
+
+                            _handle_nid_authentication_and_login(possibly_authenticated_user, request)
+
+                            # redirect_url = None  # The AJAX method calling should know the default destination upon success
+                            redirect_url = reverse('dashboard')
+
+                            response = JsonResponse({
+                                'success': True,
+                                'redirect_url': redirect_url,
+                            })
+
+                            # Ensure that the external marketing site can
+                            # detect that the user is logged in.
+                            set_logged_in_cookies(request, response, possibly_authenticated_user)
+                            return redirect(redirect_url)
+                        else:
+                            context = {
+                                'error_title': 'Error page !!',
+                                'error_msg1': "此帳號未綁定校園ID"
+                            }
+
+                            response = render_to_response('school_id_login/xerror_auth.html', context)
+                            return response
+            else:
+                context = {
+                    'error_title': 'Error page !!',
+                    'error_msg1': "查詢使用者資訊失敗"
+                }
+                response = render_to_response('school_id_login/xerror_auth.html', context)
+                return response
+    else:
+        if request.user.is_authenticated:
+            redirect_url = reverse('dashboard')
+            return redirect(redirect_url)
+        else:
+            context = {
+                'error_title': 'Error page !!',
+                'error_msg1': "錯誤要求"
+            }
+            response = render_to_response('school_id_login/xerror_auth.html', context)
+            return response
 
 def check_stu_id_school(request):
     if request.method == 'GET':
-        profile = Xsuser.objects.get(user__username__iexact=request.GET['username'], ask_nid_link='already_bind')
-        if profile:
+        try:
+            profile = Xsuser.objects.get(user__username__iexact=request.GET['username'], ask_nid_link='already_bind')
+        except Xsuser.DoesNotExist:
+            return JsonResponse({
+                'status': 'False',
+                'message': "No school id bind to this account"
+            })
+        else:
             if request.GET['check_school'] == 'FCU':
                 if re.match("FCU_+w*", profile.nid_linked):
                     return JsonResponse({
@@ -184,9 +213,3 @@ def check_stu_id_school(request):
                     'status': 'False',
                     'message': "No match with target school"
                 })
-        else:
-            return JsonResponse({
-                'status': 'False',
-                'message': "No school id is linked"
-            })
-

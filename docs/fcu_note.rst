@@ -7,6 +7,19 @@ Fcu edx-platform Documentation
 
 Change History
 **************
+20190708:
+    1. add return uri field
+    2. change the button style for nid
+    3. add error page for nid
+    modified:   
+        lms/djangoapps/school_id_login/models.py
+        lms/djangoapps/school_id_login/views.py
+        lms/static/sass/views/_login-register.scss
+
+    Add:
+        lms/djangoapps/school_id_login/migrations/0003_xschools_return_uri.py
+        lms/templates/school_id_login/
+
 20190529:
     1. move client id to Django admin
 modified:   

@@ -601,6 +601,21 @@
       }
     }
 
+    &.button-oa2-fcu-nid {
+      color: #7A0000;
+
+      .icon {
+        background: #7A0000;
+      }
+
+      &:hover,
+      &:focus {
+        background-color: #7A0000;
+        border: 1px solid #06527d;
+        color: $white;
+      }
+    }
+
     &.button-oa2-azuread-oauth2 {
       color: $microsoft-black;
 
