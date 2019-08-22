@@ -7,6 +7,23 @@ Fcu edx-platform Documentation
 
 Change History
 **************
+20190820:
+    1. remove the grade-api page size
+    2. add xuser into Django admin
+    modified: 
+        lms/djangoapps/school_id_login/admin.py
+        lms/djangoapps/grades/api/v1/views.py
+
+20190729:
+    1. change the page size as 100
+    modified:   
+        lms/djangoapps/grades/api/v1/views.py
+
+20190724:
+    1. add page size setting for grade api
+    modified:
+        lms/djangoapps/grades/api/v1/views.py
+
 20190708:
     1. add return uri field
     2. change the button style for nid
