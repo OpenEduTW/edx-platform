@@ -27,6 +27,7 @@
             enterpriseReadonlyAccountFields,
             edxSupportUrl,
             extendedProfileFields,
+            nid_bind_flag,//guangyaw modify for nid
             displayAccountDeletion,
             isSecondaryEmailFeatureEnabled
         ) {
@@ -358,18 +359,34 @@
                         {platform_name: platformName}
                     ),
                     fields: _.map(authData.providers, function(provider) {
-                        return {
-                            view: new AccountSettingsFieldViews.AuthFieldView({
-                                title: provider.name,
-                                valueAttribute: 'auth-' + provider.id,
-                                helpMessage: '',
-                                connected: provider.connected,
-                                connectUrl: provider.connect_url,
-                                acceptsLogins: provider.accepts_logins,
-                                disconnectUrl: provider.disconnect_url,
-                                platformName: platformName
-                            })
-                        };
+                        //guangyaw modify for nid
+                        if(provider.name ==='FCU_NID'){
+                            return {
+                                view: new AccountSettingsFieldViews.AuthFieldView({
+                                    title: '逢甲大學',
+                                    valueAttribute: 'auth-' + provider.id,
+                                    helpMessage: '',
+                                    connected: nid_bind_flag,
+                                    connectUrl: "https://courses.openedu.tw/nidlogin",
+                                    acceptsLogins: provider.accepts_logins,
+                                    disconnectUrl: "https://courses.openedu.tw/unlink_account",
+                                    platformName: platformName
+                                })
+                            };
+                        }else {
+                            return {
+                                view: new AccountSettingsFieldViews.AuthFieldView({
+                                    title: provider.name,
+                                    valueAttribute: 'auth-' + provider.id,
+                                    helpMessage: '',
+                                    connected: provider.connected,
+                                    connectUrl: provider.connect_url,
+                                    acceptsLogins: provider.accepts_logins,
+                                    disconnectUrl: provider.disconnect_url,
+                                    platformName: platformName
+                                })
+                            };
+                        }
                     })
                 }
             ];

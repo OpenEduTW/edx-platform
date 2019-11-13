@@ -20,7 +20,7 @@
                 </div>
                 <%
                 _.each( context.providers, function( provider) {
-                    if ( provider.registerUrl ) { %>
+                    if ( provider.registerUrl && provider.name !=='FCU_NID' ) { %>
                         <button type="button" class="button button-primary button-<%- provider.id %> login-provider register-<%- provider.id %>" data-provider-url="<%- provider.registerUrl %>">
                             <div class="icon <% if ( provider.iconClass ) { %>fa <%- provider.iconClass %><% } %>" aria-hidden="true">
                                 <% if ( provider.iconImage ) { %>

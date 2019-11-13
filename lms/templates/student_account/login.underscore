@@ -6,6 +6,13 @@
     <span class="text"><%- gettext("First time here?") %></span>
     <a href="#login" class="form-toggle" data-type="register"><%- gettext("Create an Account.") %></a>
 </div>
+</br>
+<div class="text_NID">
+    <span class="text"><%- gettext("首度使用校園ID") %></span>
+</div>
+<div class="text_NID1">
+    <span class="text"><%- gettext("請先註冊新帳號或以現有中華開放教育平台帳號綁定校園ID") %></span>
+</div>
 <% } %>
 
 <% // Hide SSO related messages if we are not in the SSO pipeline.  %>
@@ -52,13 +59,14 @@
 
         <% _.each( context.providers, function( provider ) {
             if ( provider.loginUrl ) { %>
-                <button type="button" class="button button-primary button-<%- provider.id %> login-provider login-<%- provider.id %>" data-provider-url="<%- provider.loginUrl %>">
+                <button type="button" class="button button-primary button-<%- provider.id %> login-provider login-<%- provider.id %>"
+                        data-provider-url="<% if ( provider.name==='FCU_NID' ) { %> <%- "/nidlogin" %> <% } else { %> <%- provider.loginUrl %><% } %>">
                     <div class="icon <% if ( provider.iconClass ) { %>fa <%- provider.iconClass %><% } %>" aria-hidden="true">
                         <% if ( provider.iconImage ) { %>
                             <img class="icon-image" src="<%- provider.iconImage %>" alt="<%- provider.name %> icon" />
                         <% } %>
                     </div>
-                    <span aria-hidden="true"><%- provider.name %></span>
+                    <span aria-hidden="true"><% if ( provider.name ==='FCU_NID' ) { %> <%- "逢甲大學" %><% } else { %><%- provider.name %> <% } %></span>
                     <span class="sr"><%- _.sprintf( gettext("Sign in with %(providerName)s"), {providerName: provider.name} ) %></span>
                 </button>
             <% }

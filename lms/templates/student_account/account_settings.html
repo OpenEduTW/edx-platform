@@ -46,6 +46,7 @@ from openedx.core.djangoapps.user_api.accounts.utils import is_secondary_email_f
         enterpriseReadonlyAccountFields = ${ enterprise_readonly_account_fields | n, dump_js_escaped_json },
         edxSupportUrl = '${ edx_support_url | n, js_escaped_string }',
         extendedProfileFields = ${ extended_profile_fields | n, dump_js_escaped_json },
+        nid_bind_flag = ${ nid_binding_flag | n, dump_js_escaped_json},
         displayAccountDeletion = ${ enable_account_deletion | n, dump_js_escaped_json};
         isSecondaryEmailFeatureEnabled = ${ bool(is_secondary_email_feature_enabled_for_user(user)) | n, dump_js_escaped_json },
 
@@ -67,6 +68,7 @@ from openedx.core.djangoapps.user_api.accounts.utils import is_secondary_email_f
         enterpriseReadonlyAccountFields,
         edxSupportUrl,
         extendedProfileFields,
+        nid_bind_flag,
         displayAccountDeletion,
         isSecondaryEmailFeatureEnabled
     );
