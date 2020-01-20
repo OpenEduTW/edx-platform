@@ -28,6 +28,7 @@
             edxSupportUrl,
             extendedProfileFields,
             nid_bind_flag,//guangyaw modify for nid
+            oid_bind_flag,//guangyaw add for oid
             displayAccountDeletion
         ) {
             var $accountSettingsElement, userAccountModel, userPreferencesModel, aboutSectionsData,
@@ -35,7 +36,7 @@
                 showLoadingError, orderNumber, getUserField, userFields, timeZoneDropdownField, countryDropdownField,
                 emailFieldView, socialFields, accountDeletionFields, platformData,
                 aboutSectionMessageType, aboutSectionMessage, fullnameFieldView, countryFieldView,
-                fullNameFieldData, emailFieldData, countryFieldData, additionalFields, fieldItem;
+                fullNameFieldData, emailFieldData, countryFieldData, additionalFields, fieldItem, target_path ;//add target_path for third oauth
 
             $accountSettingsElement = $('.wrapper-account-settings');
 
@@ -316,7 +317,7 @@
             timeZoneDropdownField = getUserField(userFields, 'time_zone');
             countryDropdownField = getUserField(userFields, 'country');
             timeZoneDropdownField.listenToCountryView(countryDropdownField);
-
+            target_path = window.location.origin;//add target_path for third oauth
             accountsSectionData = [
                 {
                     title: gettext('Linked Accounts'),
@@ -333,13 +334,26 @@
                                     valueAttribute: 'auth-' + provider.id,
                                     helpMessage: '',
                                     connected: nid_bind_flag,
-                                    connectUrl: "https://courses.openedu.tw/nidlogin",
+                                    connectUrl: target_path + '/nidlogin',
                                     acceptsLogins: provider.accepts_logins,
-                                    disconnectUrl: "https://courses.openedu.tw/unlink_account",
+                                    disconnectUrl: target_path + '/unlink_account',
                                     platformName: platformName
                                 })
                             };
-                        }else {
+                        } else if(provider.name ==='EDU_OP_ID'){
+                            return {
+                                view: new AccountSettingsFieldViews.AuthFieldView({
+                                    title: '教育雲端',
+                                    valueAttribute: 'auth-' + provider.id,
+                                    helpMessage: '',
+                                    connected: oid_bind_flag,
+                                    connectUrl: target_path + '/oidlogin',
+                                    acceptsLogins: provider.accepts_logins,
+                                    disconnectUrl: target_path + '/unlink_oid',
+                                    platformName: platformName
+                                })
+                            };
+                        } else {
                             return {
                                 view: new AccountSettingsFieldViews.AuthFieldView({
                                     title: provider.name,

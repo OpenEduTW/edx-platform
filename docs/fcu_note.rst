@@ -2,17 +2,33 @@
 Fcu edx-platform Documentation
 ###############################
 
-
-
-
 Change History
 **************
+20200110:
+    1. add cloud.edu login for openedu
+modified:
+    lms/djangoapps/school_id_login/admin.py
+    lms/djangoapps/school_id_login/models.py
+    lms/djangoapps/school_id_login/views.py
+    lms/djangoapps/student_account/views.py
+    lms/envs/aws.py
+    lms/envs/common.py
+    lms/static/js/student_account/views/account_settings_factory.js
+    lms/static/js/student_account/views/account_settings_fields.js
+    lms/templates/student_account/account_settings.html
+    lms/templates/student_account/login.underscore
+    lms/templates/student_account/register.underscore
+    lms/urls.py
+Add files:
+    lms/djangoapps/school_id_login/migrations/0004_auto_20200108_0309.py
+
+
 20190820:
     1. remove the grade-api page size
     2. add xuser into Django admin
-    modified: 
-        lms/djangoapps/school_id_login/admin.py
-        lms/djangoapps/grades/api/v1/views.py
+modified:
+    lms/djangoapps/school_id_login/admin.py
+    lms/djangoapps/grades/api/v1/views.py
 
 20190729:
     1. change the page size as 100

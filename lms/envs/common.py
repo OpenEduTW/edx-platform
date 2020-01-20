@@ -2321,6 +2321,9 @@ INSTALLED_APPS = [
 
     # API Documentation
     'rest_framework_swagger',
+
+    # guangyaw modify for nid
+    'school_id_login'
 ]
 
 ######################### CSRF #########################################

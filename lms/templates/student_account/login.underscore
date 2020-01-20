@@ -8,10 +8,10 @@
 </div>
 </br>
 <div class="text_NID">
-    <span class="text"><%- gettext("首度使用校園ID") %></span>
+    <span class="text"><%- gettext("首度使用校園ID或教育雲端帳號") %></span>
 </div>
 <div class="text_NID1">
-    <span class="text"><%- gettext("請先註冊新帳號或以現有中華開放教育平台帳號綁定校園ID") %></span>
+    <span class="text"><%- gettext("請先註冊新帳號或以現有中華開放教育平台帳號綁定") %></span>
 </div>
 <% } %>
 
@@ -60,13 +60,13 @@
         <% _.each( context.providers, function( provider ) {
             if ( provider.loginUrl ) { %>
                 <button type="button" class="button button-primary button-<%- provider.id %> login-provider login-<%- provider.id %>"
-                        data-provider-url="<% if ( provider.name==='FCU_NID' ) { %> <%- "/nidlogin" %> <% } else { %> <%- provider.loginUrl %><% } %>">
+                        data-provider-url="<% if ( provider.name==='FCU_NID' ) { %> <%- "/nidlogin" %> <% } else if (provider.name==='EDU_OP_ID') { %> <%- "/oidlogin" %> <% } else { %> <%- provider.loginUrl %><% } %>">
                     <div class="icon <% if ( provider.iconClass ) { %>fa <%- provider.iconClass %><% } %>" aria-hidden="true">
                         <% if ( provider.iconImage ) { %>
                             <img class="icon-image" src="<%- provider.iconImage %>" alt="<%- provider.name %> icon" />
                         <% } %>
                     </div>
-                    <span aria-hidden="true"><% if ( provider.name ==='FCU_NID' ) { %> <%- "逢甲大學" %><% } else { %><%- provider.name %> <% } %></span>
+                    <span aria-hidden="true"><% if ( provider.name ==='FCU_NID' ) { %> <%- "逢甲大學" %> <% } else if (provider.name==='EDU_OP_ID') { %> <%- "教育雲端帳號" %> <% } else { %><%- provider.name %> <% } %></span>
                     <span class="sr"><%- _.sprintf( gettext("Sign in with %(providerName)s"), {providerName: provider.name} ) %></span>
                 </button>
             <% }

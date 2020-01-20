@@ -70,9 +70,8 @@ def unidlink(request):
             auth.logout(request)
         else:
             raise AuthFailedError(_('There is no FCU_NID bind'))
-
-    redirect_url = "https://www.openedu.tw"
-    return redirect(redirect_url)
+    #remove the url address
+    return redirect("/")
 
 
 @ensure_csrf_cookie
@@ -187,6 +186,7 @@ def return_nid(request):
             response = render_to_response('school_id_login/xerror_auth.html', context)
             return response
 
+
 def check_stu_id_school(request):
     if request.method == 'GET':
         try:
@@ -213,3 +213,147 @@ def check_stu_id_school(request):
                     'status': 'False',
                     'message': "No match with target school"
                 })
+
+
+@ensure_csrf_cookie
+def uoidlink(request):
+    if request.user.is_authenticated:
+        profile = Xsuser.objects.get(user=request.user, ask_oid_link='already_bind')
+        if profile:
+            profile.oid_linked = None
+            profile.ask_oid_link = None
+            profile.save()
+            auth.logout(request)
+        else:
+            raise AuthFailedError(_('There is no OPEN_ID bind'))
+    #remove the url address
+    return redirect("/")
+
+
+@ensure_csrf_cookie
+def signin_oid(request):
+    xclient_id = Xschools.objects.get(xschool_id='OPEN_ID').xschool_client
+    xclient_url = Xschools.objects.get(xschool_id='OPEN_ID').return_uri
+    return redirect(
+        'https://oidc.tanet.edu.tw/oidc/v1/azp?response_type=code&client_id=' + xclient_id + '&redirect_uri=' +
+        xclient_url + '&scope=openid+email+profile' + '&state=OpeneduOPIDloginState&&nonce=OpeneduOPIDloginnonce')
+
+
+@csrf_exempt
+def return_oid(request):
+    if request.method == 'GET' and 'error' not in request.GET:
+
+        xclient = Xschools.objects.get(xschool_id='OPEN_ID')
+        xclient_id = xclient.xschool_client
+        xclient_secret = xclient.xschool_secret
+        xclient_url = xclient.return_uri
+        gettokenurl = 'https://oidc.tanet.edu.tw/oidc/v1/token'
+        getinfourl = "https://oidc.tanet.edu.tw/oidc/v1/userinfo"
+
+        sdata = {"client_id": xclient_id, "code": request.GET['code'], "client_secret": xclient_secret,
+                 "redirect_uri": xclient_url, "grant_type": "authorization_code"}
+        r = requests.post(gettokenurl, data=sdata)
+        if int(r.status_code) == 200:
+            resp = json.loads(r.text)
+            header_data = {"Authorization": "Bearer "+resp["access_token"]}
+            r = requests.get(getinfourl, headers=header_data)
+            if int(r.status_code) == 200:
+                target = json.loads(r.text)
+                fresp = {
+                    'open_uuid': target['sub'],
+                    'name': target['name'],
+                    'open_mail': target['email'],
+                    'preferred_username': target['preferred_username']
+                }
+                if request.user.is_authenticated:
+                    profile, created = Xsuser.objects.get_or_create(user=request.user)
+                    if profile.ask_oid_link == 'already_bind':
+                        AUDIT_LOG.info(
+                            u"Link failed - The openedu account: {idname} is already linked with a ID  ".format(
+                                idname=request.user.username)
+                        )
+                        context = {
+                            'error_title': 'Error page !!',
+                            'error_msg1': "此中華開放教育平台帳號已與其他帳號綁定"
+                        }
+
+                        response = render_to_response('school_id_login/xerror_auth.html', context)
+                        return response
+                    else:
+                        profile.ask_oid_link = 'already_bind'
+                        profile.oid_linked = "OPENID_" + fresp['open_uuid']
+                        profile.save()
+                        redirect_url = reverse('account_settings')
+                    return redirect(redirect_url)
+                else:
+                    try:
+                        puser = Xsuser.objects.get(oid_linked="OPENID_" + fresp['open_uuid'])
+                    except Xsuser.DoesNotExist:
+                        AUDIT_LOG.info(
+                            u"Login failed - No user bind to the ID {idname} ".format(idname=fresp['open_uuid'])
+                        )
+                        context = {
+                            'error_title': 'Error page !!',
+                            'error_msg1': "成功登入教育雲端帳號，但此帳號未與中華開放教育平台帳號綁定",
+                            'error_msg2': "請先登入中華開放教育平台或註冊新帳號進行帳號綁定"
+                        }
+
+                        response = render_to_response('school_id_login/xerror_auth.html', context)
+                        return response
+                    else:
+                        if puser.ask_oid_link == 'already_bind':
+                            email_user = puser.user
+                            _check_shib_redirect(email_user)
+                            _check_excessive_login_attempts(email_user)
+
+                            possibly_authenticated_user = email_user
+
+                            if possibly_authenticated_user is None or not possibly_authenticated_user.is_active:
+                                _handle_failed_authentication(email_user)
+
+                            _handle_nid_authentication_and_login(possibly_authenticated_user, request)
+
+                            # redirect_url = None  # The AJAX method calling should know the default destination upon success
+                            redirect_url = reverse('dashboard')
+
+                            response = JsonResponse({
+                                'success': True,
+                                'redirect_url': redirect_url,
+                            })
+
+                            # Ensure that the external marketing site can
+                            # detect that the user is logged in.
+                            set_logged_in_cookies(request, response, possibly_authenticated_user)
+                            return redirect(redirect_url)
+                        else:
+                            context = {
+                                'error_title': 'Error page !!',
+                                'error_msg1': "此帳號未綁定教育雲端帳號"
+                            }
+
+                            response = render_to_response('school_id_login/xerror_auth.html', context)
+                            return response
+            else:
+                context = {
+                    'error_title': 'Error page !!',
+                    'error_msg1': "查詢使用者資訊失敗"
+                }
+                return render_to_response('school_id_login/xerror_auth.html', context)
+        else:
+            context = {
+                    'error_title': 'Error page !!',
+                    'error_msg1': "Get token fail"
+                }
+
+            return render_to_response('school_id_login/xerror_auth.html', context)
+    else:
+        if request.user.is_authenticated:
+            redirect_url = reverse('dashboard')
+            return redirect(redirect_url)
+        else:
+            context = {
+                'error_title': 'Error page !!',
+                'error_msg1': "錯誤要求"
+            }
+
+            return render_to_response('school_id_login/xerror_auth.html', context)

@@ -72,6 +72,10 @@ urlpatterns = [
     url(r'^nidreturn$', school_id_views.return_nid, name='nretrun_nid'),
     url(r'^unlink_account$', school_id_views.unidlink, name='unidlink_account'),
     url(r'^check_stu_school/$', school_id_views.check_stu_id_school, name='check_stu_school_id'),
+# guangyaw modify for open-id
+    url(r'^oidlogin$', school_id_views.signin_oid, name='signin_oid'),
+    url(r'^openid_return', school_id_views.return_oid, name='return_oid'),
+    url(r'^unlink_oid$', school_id_views.uoidlink, name='uoidlink'),
 
     url(r'^$', branding_views.index, name='root'),   # Main marketing page, or redirect to courseware
 

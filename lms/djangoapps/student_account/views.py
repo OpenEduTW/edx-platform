@@ -584,6 +584,13 @@ def account_settings_context(request):
     else:
         context['nid_binding_flag'] = False
 
+# guangyaw modify for oid login
+    profile = Xsuser.objects.filter(user=request.user, ask_oid_link='already_bind')
+    if profile:
+        context['oid_binding_flag'] = True
+    else:
+        context['oid_binding_flag'] = False
+
     if third_party_auth.is_enabled():
         # If the account on the third party provider is already connected with another edX account,
         # we display a message to the user.
