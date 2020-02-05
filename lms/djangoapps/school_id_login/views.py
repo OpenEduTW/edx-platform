@@ -67,11 +67,11 @@ def unidlink(request):
             profile.nid_linked = None
             profile.ask_nid_link = None
             profile.save()
-            auth.logout(request)
+            redirect_url = reverse('logout')
+            return redirect(redirect_url)
         else:
             raise AuthFailedError(_('There is no FCU_NID bind'))
-    #remove the url address
-    return redirect("/")
+            return redirect("/")
 
 
 @ensure_csrf_cookie
@@ -223,11 +223,11 @@ def uoidlink(request):
             profile.oid_linked = None
             profile.ask_oid_link = None
             profile.save()
-            auth.logout(request)
+            redirect_url = reverse('logout')
+            return redirect(redirect_url)
         else:
             raise AuthFailedError(_('There is no OPEN_ID bind'))
-    #remove the url address
-    return redirect("/")
+            return redirect("/")
 
 
 @ensure_csrf_cookie

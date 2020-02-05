@@ -6,14 +6,14 @@ from school_id_login.models import Xschools, Xsuser
 
 
 class XschoolsAdmin(admin.ModelAdmin):
-    list_display = ('xschool_id', 'xschool_client',"xschool_secret", 'return_uri')
+    list_display = ('xschool_id', 'xschool_client', "xschool_secret", 'return_uri')
     ordering = ("xschool_id",)
 
 
 class XsuserAdmin(admin.ModelAdmin):
     list_display = ('user', 'nid_linked', 'ask_nid_link', 'oid_linked', 'ask_oid_link')
-    search_fields = ("user",)
-    ordering = ("user",)
+    search_fields = ("user__username",)
+    ordering = ("user__username",)
 
 
 admin.site.register(Xschools, XschoolsAdmin)
