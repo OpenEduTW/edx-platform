@@ -387,7 +387,14 @@
                     this.showInProgressMessage();
 
                     if (this.options.connected) {
-                        this.disconnect();
+                        //guangyaw modify for nid
+                        if (this.options.title === '逢甲大學') {
+                            this.redirect_to(this.options.disconnectUrl);
+                        } else if (this.options.title === '教育雲端帳號') {
+                            this.redirect_to(this.options.disconnectUrl);
+                        }else {
+                            this.disconnect();
+                        }
                     } else {
                         // Direct the user to the providers site to start the authentication process.
                         // See python-social-auth docs for more information.

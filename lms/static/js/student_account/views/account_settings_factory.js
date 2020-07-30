@@ -28,6 +28,8 @@
             enterpriseReadonlyAccountFields,
             edxSupportUrl,
             extendedProfileFields,
+            nid_bind_flag,//guangyaw modify for nid
+            oid_bind_flag,//guangyaw add for oid
             displayAccountDeletion,
             isSecondaryEmailFeatureEnabled,
             betaLanguage
@@ -39,7 +41,7 @@
                 aboutSectionMessageType, aboutSectionMessage, fullnameFieldView, countryFieldView,
                 fullNameFieldData, emailFieldData, secondaryEmailFieldData, countryFieldData, additionalFields,
                 fieldItem, emailFieldViewIndex, focusId,
-                tabIndex = 0;
+                tabIndex = 0, target_path ;//add target_path for third oauth
 
             $accountSettingsElement = $('.wrapper-account-settings');
 
@@ -352,7 +354,7 @@
             timeZoneDropdownField = getUserField(userFields, 'time_zone');
             countryDropdownField = getUserField(userFields, 'country');
             timeZoneDropdownField.listenToCountryView(countryDropdownField);
-
+            target_path = window.location.origin;//add target_path for third oauth
             accountsSectionData = [
                 {
                     title: gettext('Linked Accounts'),
@@ -361,18 +363,47 @@
                         {platform_name: platformName}
                     ),
                     fields: _.map(authData.providers, function(provider) {
-                        return {
-                            view: new AccountSettingsFieldViews.AuthFieldView({
-                                title: provider.name,
-                                valueAttribute: 'auth-' + provider.id,
-                                helpMessage: '',
-                                connected: provider.connected,
-                                connectUrl: provider.connect_url,
-                                acceptsLogins: provider.accepts_logins,
-                                disconnectUrl: provider.disconnect_url,
-                                platformName: platformName
-                            })
-                        };
+                        //guangyaw modify for nid
+                        if(provider.name ==='FCU_NID'){
+                            return {
+                                view: new AccountSettingsFieldViews.AuthFieldView({
+                                    title: '逢甲大學',
+                                    valueAttribute: 'auth-' + provider.id,
+                                    helpMessage: '',
+                                    connected: nid_bind_flag,
+                                    connectUrl: target_path + '/nidlogin',
+                                    acceptsLogins: provider.accepts_logins,
+                                    disconnectUrl: target_path + '/unlink_account',
+                                    platformName: platformName
+                                })
+                            };
+                        } else if(provider.name ==='EDU_OP_ID'){
+                            return {
+                                view: new AccountSettingsFieldViews.AuthFieldView({
+                                    title: '教育雲端帳號',
+                                    valueAttribute: 'auth-' + provider.id,
+                                    helpMessage: '',
+                                    connected: oid_bind_flag,
+                                    connectUrl: target_path + '/oidlogin',
+                                    acceptsLogins: provider.accepts_logins,
+                                    disconnectUrl: target_path + '/unlink_oid',
+                                    platformName: platformName
+                                })
+                            };
+                        } else {
+                            return {
+                                view: new AccountSettingsFieldViews.AuthFieldView({
+                                    title: provider.name,
+                                    valueAttribute: 'auth-' + provider.id,
+                                    helpMessage: '',
+                                    connected: provider.connected,
+                                    connectUrl: provider.connect_url,
+                                    acceptsLogins: provider.accepts_logins,
+                                    disconnectUrl: provider.disconnect_url,
+                                    platformName: platformName
+                                })
+                            };
+                        }
                     })
                 }
             ];

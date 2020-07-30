@@ -35,6 +35,8 @@ from openedx.features.enterprise_support.utils import update_account_settings_co
 from student.models import UserProfile
 from third_party_auth import pipeline
 from util.date_utils import strftime_localized
+# add for nid
+from school_id_login.models import Xsuser
 
 log = logging.getLogger(__name__)
 
@@ -148,6 +150,20 @@ def account_settings_context(request):
 
     enterprise_customer = enterprise_customer_for_request(request)
     update_account_settings_context_for_enterprise(context, enterprise_customer, user)
+
+    # guangyaw modify for nid login
+    profile = Xsuser.objects.filter(user=request.user, ask_nid_link='already_bind')
+    if profile:
+        context['nid_binding_flag'] = True
+    else:
+        context['nid_binding_flag'] = False
+
+    # guangyaw modify for oid login
+    profile = Xsuser.objects.filter(user=request.user, ask_oid_link='already_bind')
+    if profile:
+        context['oid_binding_flag'] = True
+    else:
+        context['oid_binding_flag'] = False
 
     if third_party_auth.is_enabled():
         # If the account on the third party provider is already connected with another edX account,
