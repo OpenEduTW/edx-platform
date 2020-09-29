@@ -1,0 +1,75 @@
+// Theme overrides for edx.org
+//
+// The _extras.scss file is imported after all other rules by
+// the LMS Sass. For your own theme, you can override this file
+// to add any custom rules that you need. You can also import
+// partials directly into this file so that you can break your
+// rules into modular pieces.
+
+@import 'certificates';
+
+
+// Ensure the header matches the edx.org marketing site header
+.header-logo a {
+  @include media-breakpoint-down(md) {
+    margin-left: calc(50% - 30px) !important;
+
+    .logo {
+      margin-left: 0 !important;
+      width: $header-logo-width;
+      height: auto !important;
+    }
+  }
+}
+
+/*全部字體*/
+.discussion-post>.post-header>.post-header-content>.post-title,
+.discussion-post>.post-body>p,
+.discussion-response>.response-header>.response-header-content>a,
+.discussion-response>.response-header>.response-header-content>.posted-details,
+.discussion-response>.response-body>p{
+font-family:微軟正黑體;
+font-weight: 700;
+}
+
+/*問題-標題*/
+.discussion-post>.post-header>.post-header-content>.post-title{
+color: #0075b4;
+font-size:20px;
+
+}
+/*問題-內容*/
+.discussion-post>.post-body{
+border-bottom : 1px #0075b4 solid;
+padding-bottom : 20px;
+}
+.discussion-post>.post-body>p{
+color: #3d3d3d;
+margin-bottom: 8px;
+font-size:16px;
+}
+.discussion-post>.post-context{
+margin-top: 10px;
+}
+/*回答-人*/
+.discussion-response>.response-header>.response-header-content>a{
+color:white;
+background-color: #0075b4;
+padding: 2px 10px 2px 10px;
+border-radius: 10px;
+display:inline-block;
+
+}
+.discussion-response>.response-header>.response-header-content>.posted-details{
+color: #0075b4;
+display:inline-block;
+}
+
+/*回答-內容*/
+.discussion-response>.response-body>p{
+font-size:16px;
+color: #3d3d3d;
+}
+
+
+

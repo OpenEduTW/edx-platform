@@ -1,0 +1,161 @@
+## mako
+<%page expression_filter="h"/>
+<%!
+  import datetime
+
+  from django.utils.translation import ugettext as _
+  from branding.api import get_footer
+  from openedx.core.djangoapps.lang_pref.api import footer_language_selector_is_enabled
+%>
+<% footer = get_footer(is_secure=is_secure, language=language) %>
+<% icp_license_info = getattr(settings, 'ICP_LICENSE_INFO', {})%>
+<%namespace name='static' file='static_content.html'/>
+
+
+
+## WARNING: These files are specific to edx.org and are not used in installations outside of that domain. Open edX users will want to use the file "footer.html" for any changes or overrides.
+<footer id="footer-edx-v3" role="contentinfo" aria-label="${_("Page Footer")}"
+  ## When rendering the footer through the branding API,
+  ## the direction may not be set on the parent element,
+  ## so we set it here.
+  % if bidi:
+    dir=${bidi}
+  % endif
+>
+
+<div class="container">
+    <div class="row main-row"><!-- row -->
+        <div class="col-xl-2 col-lg-12 col-md-2 col-sm-8 col-xs-10 column-1 flex-column column-styles">
+            <div class="row">
+                <div class="col-12 column-2-2 column-styles">
+                <div class="edx-footer-logo">
+                    <a href="${marketing_link('ROOT')}">
+                        <img alt="${_('edX Home Page')}" src="${static.url("images/logo-footer.png")}">
+                    </a>
+                </div>
+                % if context.get('include_language_selector', footer_language_selector_is_enabled()):
+                <%include file="${static.get_template_path('widgets/footer-language-selector.html')}"/>
+                % endif
+<!--                    <p class="copyright">${_( u"\u00A9 2015-{year} OpenEdu 中華開放教育平台。Some Rights Reserved 保留部分權利 ").format(year=datetime.datetime.now().year)}-->
+<!--                        <br/>-->
+<!--                    </p>-->
+                </div>
+            </div>
+
+        </div>
+        <div class="col-xl-6 col-lg-8 col-md-9 col-sm-5 col-xs-12 column-2 flex-column column-styles">
+             <div class="row full-height">
+
+                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 column-2-1 col-xs-12 first-div-border column-styles ">
+                    <div class="row full-height">
+                        <div class="ml-xl-0 col-lg-10 ml-lg-auto col-md-12 column-2-2 col-sm-10 full-height column-styles">
+                              <h2 class="heading">OpenEdu</h2>
+                                  <ul class="list-unstyled clear-margins  ">
+                                      <li>
+                                          <a href="https://docs.google.com/document/d/1qlHKZHGG6EHlKbMxnwTC6fXzt7oQSbW058cgfjh57N0/edit?usp=sharing">Manual 操作手冊</a>
+                                      </li>
+                                      <li>
+                                          <a href="https://openedu.gitbooks.io/manual/content/qa/qa.html">FAQ 常見問題</a>
+                                      </li>
+                                  </ul>
+                        </div>
+                    </div>
+                 </div>
+                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 column-2-1 second-div-border column-styles ">
+                        <div class="row full-height">
+                            <div class="col-lg-12 col-md-12 col-sm-10 column-2-2 full-height column-styles">
+                                  <h2 class="heading">Legal</h2>
+                                    <ul class="list-unstyled clear-margins  ">
+                                        <li>
+                                          <a href="https://www.openedu.tw/privacy.jsp">Privacy 隱私權保護</a>
+                                        </li>
+                                        <li>
+                                          <a href="https://www.openedu.tw/tos.jsp">TOS 服務條款</a>
+                                        </li>
+                                    </ul>
+                            </div>
+                          </div>
+                </div>
+                 <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 col-xs-12 column-2-1 third-div-border column-styles">
+                      <div class="row full-height">
+                        <div class="col-lg-12 col-md-12 col-sm-10 full-height column-2-2 column-styles">
+                              <h2 class="heading">Contact Us</h2>
+                              <ul class="list-unstyled clear-margins  ">
+                                <li>
+                                  <a href="https://www.openedu.tw/contact.jsp">聯絡我們</a>
+                                </li>
+                              </ul>
+                        </div>
+                      </div>
+                 </div>
+
+
+              ## The Open edX link may be hidden when this view is served
+              ## through an API to partner sites (such as marketing sites or blogs),
+              ## which are not technically powered by Open edX.
+            % if not hide_openedx_link and hide_openedx_link != Undefined:
+                  <div class="openedx-link">
+                    <a href="${footer['openedx_link']['url']}" title="${footer['openedx_link']['title']}">
+                      <img alt="${footer['openedx_link']['title']}" src="${footer['openedx_link']['image']}" width="140">
+                    </a>
+                  </div>
+            % endif
+
+
+
+            </div>
+        </div>
+        <div class="col-xl-4 col-lg-4 col-md-9 ml-md-auto col-sm-7 column-3 flex-column fourth-div-border column-styles">
+                <div class="row">
+                    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-xs-12 column-3-1 social-app-links-div column-styles ml-auto">
+                      <div class="row">
+                        <div class="col-lg-12 col-md-12 column-3-2 column-styles">
+                            <iframe src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2Fopenedu.tw%2F&amp;tabs&amp;width=340&amp;height=214&amp;small_header=false&amp;adapt_container_width=true&amp;hide_cover=false&amp;show_facepile=true&amp;appId=871146829598893" width="340" height="214" style="border:none;overflow:hidden" scrolling="no" frameborder="0" allowtransparency="true"></iframe>
+                            <ul class="list-inline list-unstyled app-links">
+                                    % for link in footer['mobile_links']:
+                                    <li>
+                                        <a href="${link['url']}" class="app-link external">
+                                            <img alt="${link['title']}" src="${link['image']}">
+                                        </a>
+                                    </li>
+                                    % endfor
+                                    <li>
+                                        <a href="https://copeneduc.org/">COEC 社團法人中華開放教育聯盟</a>
+                                    </li>
+                            </ul>
+<!--                                ## \u00A9 is the copyright symbol.-->
+<!--                                ## \u2013 is the en-dash. It looks like a year, but it isn't.-->
+<!--                              "EdX, Open edX, and MicroMasters are trademarks of edX Inc. registered in the U.S. and other countries-->
+
+                        </div>
+                  </div>
+                </div>
+
+                </div>
+
+        </div>
+    </div>
+
+
+
+
+</div>
+
+</footer>
+
+% if include_dependencies:
+  <%static:js group='base_vendor'/>
+  <%static:css group='style-vendor'/>
+  <%include file="widgets/segment-io.html" />
+  <%include file="widgets/segment-io-footer.html" />
+% endif
+
+% if bidi == 'rtl':
+<%static:css group='style-lms-footer-edx-rtl'/>
+% else:
+<%static:css group='style-lms-footer-edx'/>
+% endif
+
+% if footer_js_url:
+  <script type="text/javascript" src="${footer_js_url}"></script>
+% endif
